@@ -1,0 +1,10 @@
+#commentform input.error, #commentform input[type="text"].error, #commentform textarea.error {
+	background-color: #fffdc7;
+	color: #000;/*DF:*/
+}
+#commentform div.error, #commentform label.error {
+	color: red;
+}
+#commentform div.errorlabels label {
+	display: block;
+}

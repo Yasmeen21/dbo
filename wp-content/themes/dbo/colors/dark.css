@@ -1,0 +1,15 @@
+/*
+	A dark color scheme for dbo
+*/
+
+/* =Global
+----------------------------------------------- */
+
+#respond input#submit {
+	margin-right: 6px;
+    margin-top: 12px;
+}
+
+ins {
+	background: inherit;
+}
