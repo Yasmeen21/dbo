@@ -4,11 +4,11 @@ Plugin Name: Lightbox Gallery
 Plugin URI: http://wpgogo.com/development/lightbox-gallery.html
 Description: The Lightbox Gallery plugin changes the view of galleries to the lightbox.
 Author: Hiroaki Miyashita
-Version: 0.7.3
+Version: 0.7.4
 Author URI: http://wpgogo.com/
 */
 
-/*  Copyright 2009 -2012 Hiroaki Miyashita
+/*  Copyright 2009 -2013 Hiroaki Miyashita
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -477,6 +477,16 @@ function lightbox_gallery($attr) {
 	global $post, $wp_query;
 	$options = get_option('lightbox_gallery_data');
 
+	static $instance = 0;
+	$instance++;
+
+	if ( ! empty( $attr['ids'] ) ) {
+		// 'ids' is explicitly ordered, unless you specify otherwise.
+		if ( empty( $attr['orderby'] ) )
+			$attr['orderby'] = 'post__in';
+		$attr['include'] = $attr['ids'];
+	}
+
 	// Allow plugins/themes to override the default gallery template.
 	$output = apply_filters('post_gallery', '', $attr);
 	if ( $output != '' )
@@ -527,9 +537,8 @@ function lightbox_gallery($attr) {
 		'next_or_number' => 'number', 'nextpagelink' => __('Next page'),
 		'previouspagelink' => __('Previous page'), 'pagelink' => '%', 'pagenavi' => 1
 	), $attr));
-
+	
 	$id = intval($id);
-
 	if ( 'RAND' == $order )
 		$orderby = 'none';
 
@@ -575,14 +584,36 @@ function lightbox_gallery($attr) {
 	$captiontag = tag_escape($captiontag);
 	$columns = intval($columns);
 	$itemwidth = $columns > 0 ? floor(100/$columns) : 100;
-	
+	$float = is_rtl() ? 'right' : 'left';
+
+	$selector = "gallery-{$instance}";
+
+	$gallery_style = $gallery_div = '';
 	if ( empty($options['global_settings']['lightbox_gallery_disable_column_css']) ) :
-		$column_css = "<style type='text/css'>
-	.gallery-item {width: {$itemwidth}%;}
-</style>";
+	if ( apply_filters( 'use_default_gallery_style', true ) )
+		$gallery_style = "
+		<style type='text/css'>
+			#{$selector} {
+				margin: auto;
+			}
+			#{$selector} .gallery-item {
+				float: {$float};
+				margin-top: 10px;
+				text-align: center;
+				width: {$itemwidth}%;
+			}
+			#{$selector} img {
+				border: 2px solid #cfcfcf;
+			}
+			#{$selector} .gallery-caption {
+				margin-left: 0;
+			}
+		</style>
+		<!-- see gallery_shortcode() in wp-includes/media.php -->";
 	endif;
-	
-	$output = apply_filters('gallery_style', $column_css."<div class='gallery {$class}'>");
+	$size_class = sanitize_html_class( $size );
+	$gallery_div = "<div id='$selector' class='gallery galleryid-{$id} gallery-columns-{$columns} gallery-size-{$size_class} {$class}'>";
+	$output = apply_filters( 'gallery_style', $gallery_style . "\n\t\t" . $gallery_div );
 	
 	if ( $class && $options['global_settings']['lightbox_gallery_loading_type'] == 'lightbox' ) :
 		$output .= '<script type="text/javascript">
@@ -594,17 +625,17 @@ function lightbox_gallery($attr) {
 </script>'."\n";
 	endif;
 
-	//DF: use lightbox only if not on mobile, otherwise get rid of everything in links that would cuase it to fire
+	//DF: use lightbox only if not on mobile, otherwise get rid of everything in links that would cause it to fire
 	if (    !( function_exists( 'bnc_wptouch_is_mobile' ) && bnc_wptouch_is_mobile() )    ) {
 		if ( $options['global_settings']['lightbox_gallery_loading_type'] == 'colorbox') :
 			$output .= '<script type="text/javascript">
-			// <![CDATA[
-			jQuery(document).ready(function () {
-				jQuery(".'.$class.' a").attr("rel","'.$class.'");	
-				jQuery(\'a[rel="'.$class.'"]\').colorbox({title: function(){ return jQuery(this).children().attr("alt"); }});
-			});
-			// ]]>
-			</script>'."\n";
+	// <![CDATA[
+		jQuery(document).ready(function () {
+			jQuery(".'.$class.' a").attr("rel","'.$class.'");	
+			jQuery(\'a[rel="'.$class.'"]\').colorbox({title: function(){ return jQuery(this).children().attr("alt"); }});
+		});
+	// ]]>
+	</script>'."\n";
 		endif;
 	} else {
 		$output .= '<script type="text/javascript">
@@ -615,8 +646,7 @@ function lightbox_gallery($attr) {
 		// ]]>
 		</script>'."\n";
 	}
-
-
+	
 	$i = 0;
 	foreach ( $attachments as $id => $attachment ) {
 		if ( $attachment->post_type == 'attachment' ) {
@@ -646,10 +676,11 @@ function lightbox_gallery($attr) {
 			}
 
 			$output .= '<'.$itemtag.' class="gallery-item">'."\n";
-			$output .= '<'.$icontag.' class="gallery-icon"><a href="'.$lightbox_link[0].'" ';
-			
+			$output .= '<'.$icontag.' class="gallery-icon">
+<a href="'.$lightbox_link[0].'" ';
+
 			if (    !( function_exists( 'bnc_wptouch_is_mobile' ) && bnc_wptouch_is_mobile() )    ) {//DF: title tag creates a tooltip that messes up mobile tapping
-				$output .= 'title="'.esc_attr($attachment->post_excerpt).'"';
+				$output .= ' title="'.esc_attr($attachment->post_excerpt).'"';
 			}
 
 			if ( $nofollow == "true" ) $output .= ' rel="nofollow"';
@@ -658,7 +689,7 @@ function lightbox_gallery($attr) {
 			elseif ( $options['global_settings']['lightbox_gallery_loading_type'] == 'colorbox' ) :
 				$output .= ' rel="'.$class.'"';
 			endif;
-			$output .= '><img src="'.$thumbnail_link[0].'" width="'.$thumbnail_link[1].'" '.   /*DF: removed to allow thumbs to scale 'height="'.$thumbnail_link[2].'"'*/     ' alt="'.esc_attr($attachment->post_excerpt).'" /></a>
+			$output .= '><img src="'.$thumbnail_link[0].'" width="'.$thumbnail_link[1].'" '.   /*DF: removed to allow thumbs to scale 'height="'.$thumbnail_link[2].'"'*/     '  alt="'.esc_attr($attachment->post_excerpt).'" /></a>
 </'.$icontag.'>';
 			if ( $captiontag && (trim($attachment->post_excerpt) || trim($attachment->post_content) || isset($metadata)) ) {
 				$output .= '<'.$captiontag.' class="gallery-caption" id="caption'.$attachment->ID.'">';

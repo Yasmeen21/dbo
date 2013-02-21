@@ -396,7 +396,7 @@
 			        // See: http://jacklmoore.com/notes/click-events/
 
 
-					if  ( jQuery("#headerImgWrapper").css("visibility")!="hidden" ) {//DF: responsive design at a small width shouldn't use lb
+					if  ( parseInt( jQuery("#branding #s").css("width") )!=0 ) {//DF: responsive design at a small width shouldn't use lb
 						if (!(e.which > 1 || e.shiftKey || e.altKey || e.metaKey)) {
 							e.preventDefault();
 							launch(this);

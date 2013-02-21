@@ -14,7 +14,7 @@
 	</div><!-- #main -->
 
 	<footer id="colophon" role="contentinfo">
-		Die But Once is not affliated with any wrestling or entertainment company. All figures are created as one-of-a-kind works of art for personal collections and are not mass produced.  All logos, trademarks and likenesses are property of their respective owners.		
+		DBO is not affliated with any wrestling or entertainment company. All figures are created as one-of-a-kind works of art for personal collections.  All logos, trademarks and likenesses are property of their respective owners.		
 	</footer><!-- #colophon -->
 </div><!-- #page -->
 

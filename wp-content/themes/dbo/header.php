@@ -49,6 +49,7 @@
 	?></title>
 <link rel="profile" href="http://gmpg.org/xfn/11" />
 <link rel="stylesheet" type="text/css" media="all" href="<?php bloginfo( 'stylesheet_url' ); ?>" />
+<link href='http://fonts.googleapis.com/css?family=Domine' rel='stylesheet' type='text/css'>
 <link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>" />
 <!--[if lt IE 9]>
 <script src="<?php echo get_template_directory_uri(); ?>/js/html5.js" type="text/javascript"></script>
@@ -65,6 +66,20 @@
 	 * generally use this hook to add elements to <head> such
 	 * as styles, scripts, and meta tags.
 	 */
+/*
+	wp_enqueue_script(
+		'dbo-custom',
+		get_stylesheet_directory_uri() . '/js/dbo_custom.js',
+		array()
+	);
+
+	wp_enqueue_script(
+		'jquery-cookie',
+		get_stylesheet_directory_uri() . '/js/jquery.cookie.js',
+		array()
+	);
+*/
+
 	wp_head();
 ?>
 <!-- DF: added google site verification and favicon -->
@@ -73,8 +88,35 @@
 </head>
 
 <body <?php body_class(); ?>>
+<!--
+<div id="closeIcon"><img id="closeIconImg" src="<?php echo get_stylesheet_directory_uri(); ?>/images/close_icon_popup.png" border="0" /></div>
+<div id="cta" style="display:none" class="gradient">-->
+	<!--[if gte IE 9]>
+	  <style type="text/css">
+		.gradient {
+		   filter: none;
+		}
+	  </style>
+	<![endif]-->
+<!--
+	<h2>Let's Make Your Custom!</h2>
+
+	<div id="innerCta">
+		Have an idea for an awesome figure? Die But Once Customs is ready to make it happen for you!
+
+		<div id="ctaFormWrapper">
+			<?php echo do_shortcode( '[contact-form-7 id="550" title="Call To Action Form"]' ); ?>
+		</div>
+	</div>
+</div>
+-->
 <div id="page" class="hfeed">
-	<header id="branding" role="banner">
+	<header id="branding" role="banner">			
+			<hgroup>
+				<div id="site-title"><span><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?> home page" rel="home">
+				<img src="/images/logos/header_logo.png" id="headerLogo" /></a></span></div>
+			</hgroup>
+
 
 			<?php
 				// Check to see if the header image has been removed
@@ -82,34 +124,25 @@
 				
 				if ( ! empty( $header_image ) ) :
 			?>
-			<a href="<?php echo esc_url( home_url( '/' ) ); ?>">
-				<?php ?>
-					<div id="headerImgWrapper">
-					<?php
-					// The header image
-					// Check if this is a post or page, if it has a thumbnail, and if it's a big one
-					if ( is_singular() &&
-							has_post_thumbnail( $post->ID ) &&
-							( /* $src, $width, $height */ $image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), array( HEADER_IMAGE_WIDTH, HEADER_IMAGE_WIDTH ) ) ) &&
-							$image[1] >= HEADER_IMAGE_WIDTH ) :
-						// Houston, we have a new header image!
-						echo get_the_post_thumbnail( $post->ID, 'post-thumbnail' );
-					else : ?>
-					<!--<img src="<?php header_image(); ?>" width="<?php echo HEADER_IMAGE_WIDTH; ?>" height="<?php echo HEADER_IMAGE_HEIGHT; ?>" alt="" />-->
-					
-						<img src="<?php header_image(); ?>" />
-					<?php endif; // end check for featured image or standard header ?>
-					</div>
-			</a>
+
+			<?php ?>
+				<div id="headerImgWrapper">
+				<?php
+				// The header image
+				// Check if this is a post or page, if it has a thumbnail, and if it's a big one
+				if ( is_singular() &&
+						has_post_thumbnail( $post->ID ) &&
+						( /* $src, $width, $height */ $image = wp_get_attachment_image_src( get_post_thumbnail_id( $post->ID ), array( HEADER_IMAGE_WIDTH, HEADER_IMAGE_WIDTH ) ) ) &&
+						$image[1] >= HEADER_IMAGE_WIDTH ) :
+					// Houston, we have a new header image
+					echo get_the_post_thumbnail( $post->ID, 'post-thumbnail' );
+				else : ?>
+				<!--<img src="<?php header_image(); ?>" width="<?php echo HEADER_IMAGE_WIDTH; ?>" height="<?php echo HEADER_IMAGE_HEIGHT; ?>" alt="" />-->
+				
+					<img src="<?php header_image(); ?>" />
+				<?php endif; // end check for featured image or standard header ?>
+				</div>
 			<?php endif; // end check for removed header image ?>			
-			
-			
-			<hgroup>
-				<h1 id="site-title"><span><a href="<?php echo esc_url( home_url( '/' ) ); ?>" title="<?php echo esc_attr( get_bloginfo( 'name', 'display' ) ); ?>" rel="home">
-				<img src="/images/logos/header_logo.png" id="headerLogo" />
-				<!--<?php bloginfo( 'name' ); ?>--></a></span></h1>
-				<h2 id="site-description"><?php bloginfo( 'description' ); ?></h2>
-			</hgroup>
 
 
 			<?php
@@ -132,8 +165,16 @@
 				<div class="skip-link"><a class="assistive-text" href="#secondary" title="<?php esc_attr_e( 'Skip to secondary content', 'dbo' ); ?>"><?php _e( 'Skip to secondary content', 'dbo' ); ?></a></div>
 				<?php /* Our navigation menu.  If one isn't filled out, wp_nav_menu falls back to wp_page_menu. The menu assiged to the primary position is the one used. If none is assigned, the menu with the lowest ID is used. */ ?>
 				<?php wp_nav_menu( array( 'theme_location' => 'primary' ) ); ?>
+
+				<div class="social_container">
+					<ul class="social_bookmarks">
+						<li class="facebook"><a href="http://www.facebook.com/diebutonce" target="_blank">Join us on Facebook</a></li>
+						<li class="ebay"><a href="http://www.ebay.com/sch/diebutonce/m.html?item=200784532270&viewitem=&rt=nc&_trksid=p4340.l2562" target="_blank">Visit us on eBay</a></li>
+						<li class="twitter"><a href="https://twitter.com/diebutonce" target="_blank">Follow us on Twitter</a></li>
+						<li class="youtube"><a href="http://www.youtube.com/diebutonce" target="_blank">Follow our YouTube Channel</a></li>
+					</ul>
+				</div>
 			</nav><!-- #access -->
 	</header><!-- #branding -->
-
 
 	<div id="main">
